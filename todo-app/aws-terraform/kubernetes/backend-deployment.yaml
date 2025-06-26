@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-backend-deployment
+  labels:
+    app: todo-backend
+spec:
+  replicas: 2 # Number of backend instances for high availability
+  selector:
+    matchLabels:
+      app: todo-backend
+  template:
+    metadata:
+      labels:
+        app: todo-backend
+    spec:
+      containers:
+      - name: todo-backend
+        image: <YOUR_ACCOUNT_ID>.dkr.ecr.<YOUR_AWS_REGION>.amazonaws.com/todo-app-backend:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: SPRING_DATASOURCE_URL
+          value: "jdbc:postgresql://<RDS_ENDPOINT>:5432/<RDS_DATABASE_NAME>" # Use your RDS endpoint from Terraform output
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "<RDS_USERNAME>" # Your RDS username from Terraform variable
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "<RDS_PASSWORD>" # Your RDS password from Terraform variable (consider Kubernetes Secrets for production)
+        - name: SPRING_JPA_HIBERNATE_DDL_AUTO
+          value: "update" # 'update' will create tables; change to 'none' after first deployment
+        - name: SPRING_WEB_CORS_ALLOWED_ORIGINS
+          value: "*" # Temporarily for testing, later use frontend Ingress URL
+        livenessProbe: # Health check to ensure application is running
+          httpGet:
+            path: /actuator/health # Add Spring Boot Actuator for health checks
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe: # Health check to ensure application is ready to serve traffic
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 35
+          periodSeconds: 10
+      imagePullSecrets:
+      - name: regcred # If you setup a secret for ECR pulling, otherwise EKS role handles it

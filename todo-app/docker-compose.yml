@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:15-alpine
+    container_name: todo-db-local
+    environment:
+      POSTGRES_DB: tododb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - todo-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d tododb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build: ./todo-backend
+    container_name: todo-backend-local
+    ports:
+      - "8082:8080" # Host port 8082 for backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/tododb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_WEB_CORS_ALLOWED_ORIGINS: http://localhost:8081 # CORS for frontend on 8081
+      SPRING_WEB_CORS_ALLOWED_METHODS: GET,POST,PUT,DELETE,OPTIONS
+      SPRING_WEB_CORS_ALLOWED_HEADERS: '*'
+      SPRING_WEB_CORS_ALLOW_CREDENTIALS: 'true'
+      SPRING_WEB_CORS_MAX_AGE: '3600'
+    depends_on:
+      database:
+        condition: service_healthy
+
+  frontend:
+    build: ./todo-frontend
+    container_name: todo-frontend-local
+    ports:
+      - "8081:80" # Host port 8081 for frontend
+    depends_on:
+      backend:
+        condition: service_started
+
+volumes:
+  todo-db-data:

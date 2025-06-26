@@ -6,7 +6,7 @@ function App() {
   const [todos, setTodos] = useState([]);
   const [newTodoTitle, setNewTodoTitle] = useState('');
   const [newTodoDescription, setNewTodoDescription] = useState('');
-  const API_URL = 'http://localhost:8080/api/todos'; // **IMPORTANT: Change this for deployment**
+  const API_URL = '/api/todos'; // **IMPORTANT: Change this for deployment**
 
   useEffect(() => {
     fetchTodos();
