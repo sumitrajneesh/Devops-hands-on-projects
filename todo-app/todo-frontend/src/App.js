@@ -5,8 +5,9 @@ import './App.css'; // You can style this later
 function App() {
   const [todos, setTodos] = useState([]);
   const [newTodoTitle, setNewTodoTitle] = useState('');
-  const [newTodoDescription, setNewTodoDescription] = useState('');
-  const API_URL = '/api/todos'; // **IMPORTANT: Change this for deployment**
+  const [newTodoDescription, setNewTodoDescription] = '';
+  // API_URL is relative, Nginx will proxy this to the backend
+  const API_URL = '/api/todos'; 
 
   useEffect(() => {
     fetchTodos();
