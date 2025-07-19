@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  java-backend:
+    build:
+      context: ../java-backend
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  go-worker:
+    build:
+      context: ../go-worker
+    ports:
+      - "2112:2112"
+    networks:
+      - app-network
+
+  python-automation:
+    build:
+      context: ../python-automation
+    environment:
+      - SERVICE_URL=http://java-backend:8080/actuator/health
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

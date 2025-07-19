@@ -1,0 +1,23 @@
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore Java build files
+target/
+*.class
+
+# Ignore Golang binaries
+devops-sre-platform/go-worker/go-worker
+
+# Ignore Docker images
+*.tar
+
+# Ignore environment files
+.env
+
+# Ignore IDE settings
+.idea/
+.vscode/
+
+# Node modules (if you add frontend later)
+node_modules/
